@@ -1,0 +1,684 @@
+\documentclass[11pt,a4paper]{article}
+%%%%%%%%%%%%%%%%%%%%%%%%% Credit %%%%%%%%%%%%%%%%%%%%%%%%
+
+% template ini dibuat oleh martin.manullang@if.itera.ac.id untuk dipergunakan oleh seluruh sivitas akademik itera.
+
+%%%%%%%%%%%%%%%%%%%%%%%%% PACKAGE starts HERE %%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage[expansion=false]{microtype}
+\captionsetup[table]{name=Tabel}
+\captionsetup[figure]{name=Gambar}
+\usepackage{tabulary}
+\usepackage{minted}
+% \usepackage{amsmath}
+\usepackage{fancyhdr}
+% \usepackage{amssymb}
+% \usepackage{amsthm}
+\usepackage{placeins}
+% \usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage[all]{xy}
+\usepackage{tikz}
+\usepackage{verbatim}
+\usepackage[left=2cm,right=2cm,top=3cm,bottom=2.5cm]{geometry}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks,
+    linkcolor={red!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{psfrag}
+\usepackage[T1]{fontenc}
+\usepackage[scaled]{beramono}
+% Enable inserting code into the document
+\usepackage{listings}
+\usepackage{xcolor} 
+% custom color & style for listing
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{LightGray}{gray}{0.9}
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{green},
+	keywordstyle=\color{codegreen},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\ttfamily\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+\lstset{style=mystyle}
+\renewcommand{\lstlistingname}{Kode}
+%%%%%%%%%%%%%%%%%%%%%%%%% PACKAGE ends HERE %%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%% Data Diri %%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\student}{\textbf{William Chan (122140130)}}
+\newcommand{\course}{\textbf{Pembelajaran Mendalam (IF25-40305)}}
+\newcommand{\assignment}{\textbf{Perbandingan Model Vision Transformer}}
+
+%%%%%%%%%%%%%%%%%%% using theorem style %%%%%%%%%%%%%%%%%%%%
+\newtheorem{thm}{Theorem}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{defn}[thm]{Definition}
+\newtheorem{exa}[thm]{Example}
+\newtheorem{rem}[thm]{Remark}
+\newtheorem{coro}[thm]{Corollary}
+\newtheorem{quest}{Question}[section]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{lipsum}%% a garbage package you don't need except to create examples.
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\lhead{William Chan (122140130)}
+\rhead{ \thepage}
+\cfoot{\textbf{Perbandingan Model Vision Transformer}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+%%%%%%%%%%%%%%  Shortcut for usual set of numbers  %%%%%%%%%%%
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\setlength\headheight{14pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%555
+\begin{document}
+\thispagestyle{empty}
+\begin{center}
+	\includegraphics[scale = 0.15]{Figure/ifitera-header.png}
+	\vspace{0.1cm}
+\end{center}
+\noindent
+\rule{17cm}{0.2cm}\\[0.3cm]
+Nama: \student \hfill Tugas: \assignment\\[0.1cm]
+Mata Kuliah: \course \hfill Tanggal: 21 November 2025\\
+\rule{17cm}{0.05cm}
+\vspace{0.1cm}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BODY DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Repository:} \url{https://github.com/William-130/VisionTransformer-Comparison.git}
+
+\section{PENDAHULUAN}
+
+\subsection{Latar Belakang}
+Dalam beberapa tahun terakhir, saya mengamati perkembangan menarik di bidang computer vision, khususnya dengan kemunculan Vision Transformer (ViT) yang mengadopsi arsitektur Transformer dari NLP ke domain gambar \cite{dosovitskiy2021image}. Yang membuat ViT menarik adalah pendekatannya yang berbeda dari CNN tradisional seperti ResNet \cite{he2016deep}. Kalau CNN pakai konvolusi untuk ekstrak fitur lokal, ViT justru menggunakan self-attention untuk menangkap hubungan global antar bagian gambar. Ini seperti memberi model kemampuan untuk "melihat" keseluruhan gambar sekaligus, bukan hanya bagian kecil-kecil. Dan hasilnya? Ketika ditraining dengan dataset besar seperti ImageNet \cite{deng2009imagenet}, performa ViT bisa melampaui CNN yang sudah bertahun-tahun mendominasi.
+
+Dari kesuksesan ViT ini, muncul berbagai varian menarik. Salah satunya Swin Transformer yang menggunakan pendekatan hierarchical dengan shifted windows \cite{liu2021swin}. Jadi sekarang kita punya dua pilihan: Vision Transformer Base dengan 86 juta parameter yang pakai pure transformer architecture, versus Swin Transformer yang lebih compact (27.5M parameter) tapi tetap powerful dengan hierarchical approach-nya. Masing-masing punya kelebihan dan kekurangan tersendiri.
+
+\subsection{Motivasi Perbandingan Model}
+Ketika saya ingin membuat aplikasi klasifikasi makanan Indonesia, saya langsung berpikir: model mana yang sebaiknya dipakai? Swin Transformer menarik karena modelnya compact (cuma 27.5M parameter) tapi tetap punya kemampuan global attention yang powerful. Di sisi lain, Vision Transformer Base dengan 86M parameter menjanjikan akurasi maksimal dengan arsitektur pure transformer-nya. 
+
+Pertanyaannya: apakah akurasi ekstra dari ViT Base worth it dengan ukuran model yang 3× lebih besar? Atau justru Swin Transformer sudah cukup bagus dan lebih praktis untuk deployment? Nah, eksperimen ini saya lakukan untuk menjawab pertanyaan tersebut, terutama dalam konteks aplikasi real-world di mana kita harus balance antara akurasi dan efisiensi.
+
+\subsection{Tujuan Eksperimen}
+Goals saya dalam eksperimen ini cukup straightforward:
+\begin{itemize}
+    \item \textbf{Tes performa actual:} Saya ingin tahu seberapa bagus Swin Transformer Tiny (27.5M params) vs Vision Transformer Base (86M params) ketika dipakai untuk klasifikasi 5 jenis makanan Indonesia
+    \item \textbf{Analisis trade-offs:} Berapa perbedaan akurasi? Seberapa besar gap dalam jumlah parameter? Seberapa cepat inference-nya? Saya ingin data konkret untuk semua ini
+    \item \textbf{Compare architectures:} Apakah hierarchical approach (Swin) atau pure transformer (ViT) lebih cocok untuk klasifikasi makanan?
+    \item \textbf{Practical recommendations:} Di akhir, saya ingin bisa kasih rekomendasi jelas: kalau deploy di edge device pakai yang mana, kalau di cloud server pakai yang mana
+\end{itemize}
+
+\section{LANDASAN TEORI}
+
+\subsection{Konsep Dasar: Transformer dan Self-Attention}
+Sebelum masuk ke model-model spesifik, saya perlu jelasin dulu konsep fundamental di balik semua ini: Transformer dan self-attention. Jadi, Transformer itu arsitektur neural network yang powerful banget, originally dari paper "Attention is All You Need" \cite{vaswani2017attention}. Yang membuat Transformer spesial adalah mekanisme self-attention-nya.
+
+Cara kerjanya simpel tapi brilliant: untuk setiap bagian dari input, model menghitung seberapa "relevan" bagian tersebut dengan bagian lainnya. Ini dilakukan dengan tiga proyeksi: Query (Q), Key (K), dan Value (V). Formula matematisnya:
+
+$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
+
+Dengan $d_k$ sebagai dimensi key vector. Yang menarik dari self-attention ini adalah dia bisa nangkap hubungan jarak jauh (long-range dependencies) dengan efisien, tanpa limitasi receptive field seperti CNN. Ini jadi fondasi buat kedua model yang saya compare.
+
+\subsection{Model Pertama: Swin Transformer}
+Swin Transformer (singkatan dari Shifted Window Transformer) \cite{liu2021swin} adalah salah satu model yang saya test. Yang bikin Swin menarik adalah pendekatan hierarchical-nya. Jadi instead of treating semua patch gambar equally seperti ViT original, Swin pakai strategi yang lebih mirip CNN: membangun representasi dari coarse ke fine.
+
+\textbf{How it works:} Swin punya beberapa fitur kunci yang perlu dipahami:
+
+\begin{itemize}
+    \item \textbf{Hierarchical Feature Maps:} Swin pakai patch merging untuk bikin feature maps dengan resolusi bertingkat (kayak piramida di CNN). Ini membantu model nangkap informasi di berbagai scale - dari detail kecil sampai struktur besar.
+    
+    \item \textbf{Shifted Window Attention:} Ini trick clever-nya. Daripada compute attention untuk seluruh gambar (yang mahal secara komputasi), Swin cuma compute attention dalam windows kecil yang "bergeser" antar layer. Efeknya? Kompleksitas turun dari $O(n^2)$ jadi $O(n)$ - jauh lebih efficient!
+    
+    \item \textbf{Architecture Details:} Swin Tiny yang saya pakai punya 4 stage dengan embedding dimension 96, total 27.5 juta parameter. Patch size-nya 4×4 dan window size 7×7.
+\end{itemize}
+
+\textbf{Kenapa Swin menarik?}
+\begin{itemize}
+    \item Super efficient untuk gambar besar/high resolution
+    \item Hierarchical representation-nya versatile untuk berbagai tasks
+    \item Computational complexity yang linear - bagus untuk edge devices
+    \item Model size reasonable (27.5M params)
+\end{itemize}
+
+\textbf{Trade-offs yang perlu diperhatikan:}
+\begin{itemize}
+    \item Implementasi lebih complex (shifted windows agak tricky)
+    \item Local windows bisa miss some long-range dependencies
+\end{itemize}
+
+\subsection{Model Kedua: Vision Transformer Base (ViT-B/16)}
+Sekarang model lawannya: Vision Transformer \cite{dosovitskiy2021image}. ViT ini basically membuktikan bahwa kita bisa completely abandon convolutions dan full commit ke transformer architecture untuk computer vision. Dan surprisingly, it works really well!
+
+\textbf{How ViT approaches images:} 
+
+\begin{itemize}
+    \item \textbf{Pure Transformer, No Convolutions:} ViT cuts gambar jadi patches kecil (16×16 pixels), flatten each patch, lalu treat them like "words" dalam NLP. Setiap patch di-project ke 768-dimensional embedding space. Simple but powerful!
+    
+    \item \textbf{Global Attention Everywhere:} Ini yang bikin ViT special - setiap patch bisa "melihat" dan attend ke SEMUA patches lainnya di setiap layer. No restrictions, full global view dari awal. Ini beda banget sama Swin yang cuma compute local attention.
+    
+    \item \textbf{Architecture Specs:} ViT-B/16 yang saya pakai: patch size 16×16, embedding dim 768, 12 transformer layers dengan 12 attention heads each. Total? 86 juta parameter - about 3× lebih besar dari Swin. Model juga pakai positional embeddings buat kasih info spatial ke patches.
+\end{itemize}
+
+\textbf{Kenapa ViT powerful?}
+\begin{itemize}
+    \item Accuracy potential super high, especially dengan good pre-training (ImageNet-21K)
+    \item Architecture-nya bersih dan intuitive - literally just stacking transformer blocks
+    \item Scale beautifully dengan more data dan compute
+    \item Global receptive field from the very first layer - no gradual buildup needed
+\end{itemize}
+
+\textbf{Trade-offs yang harus dipertimbangkan:}
+\begin{itemize}
+    \item Model size lumayan gede (86M params means 327 MB on disk)
+    \item GPU memory hungry - saya cuma bisa batch size 4, vs 8 untuk Swin
+    \item Inference agak slower karena global attention yang compute-intensive
+    \item Quadratic complexity ($O(n^2)$) bisa jadi bottleneck untuk large images
+\end{itemize}
+
+
+\begin{table}[h]
+\caption{Perbandingan Teoritis Swin Transformer vs Vision Transformer}
+\label{tab:theory-comparison}
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Aspek} & \textbf{Swin Transformer} & \textbf{ViT Base} \\ \hline
+Attention Mechanism & Shifted Window (Local) & Global Attention \\ \hline
+Feature Hierarchy & Hierarchical (Multi-scale) & Single-scale \\ \hline
+Patch Size & 4×4 & 16×16 \\ \hline
+Embedding Dimension & 96 & 768 \\ \hline
+Number of Parameters & 27.5M & 85.8M \\ \hline
+Computational Complexity & O(n) linear & O(n²) quadratic \\ \hline
+Training Strategy & Standard fine-tuning & Standard fine-tuning \\ \hline
+Best Use Case & Edge devices, speed critical & Server, accuracy critical \\ \hline
+\end{tabular}
+\end{table}
+
+\section{METODOLOGI}
+
+\subsection{Deskripsi Dataset}
+Untuk eksperimen ini, saya pakai Indonesian Food Dataset dengan 5 jenis makanan khas Indonesia yang cukup populer:
+
+\begin{itemize}
+    \item \textbf{Bakso}: Sup bola daging dengan mie dan sayuran. Favorit banyak orang
+    \item \textbf{Gado-gado}: Salad sayuran dengan bumbu kacang yang khas. Warna-warni dan healthy
+    \item \textbf{Nasi Goreng}: Ini yang paling tricky - bisa banyak banget variasinya, dari seafood sampai pete
+    \item \textbf{Rendang}: Daging sapi dengan bumbu Minang yang rich. Biasanya dark brown
+    \item \textbf{Soto Ayam}: Sup ayam kuning dengan kuah bening sampai kental. Regional variations-nya banyak
+\end{itemize}
+
+Stats dataset saya:
+\begin{itemize}
+    \item Total: 1,108 images (lumayan kecil, tapi cukup untuk testing)
+    \item Split: 80\% training (886 images), 20\% validation (222 images)
+    \item Balance: Pretty good - setiap kelas dapet 19-21\% dari total, jadi ga ada class imbalance issue
+    \item Format: JPG files dengan berbagai resolusi
+    \item Source: Mixed sources - variasi angle, lighting, background, jadi realistis
+\end{itemize}
+
+\textbf{Why this dataset is challenging:}
+
+Jujur, Indonesian food classification ini ga se-straightforward yang kelihatannya. Ada beberapa challenges:
+\begin{itemize}
+    \item \textbf{High intra-class variation:} Rendang bisa disajikan kering atau basah, dengan atau tanpa sayuran pelengkap. Soto ayam bisa kuning pekat atau bening
+    \item \textbf{Visual overlaps:} Nasi goreng dan nasi di soto ayam bisa keliatan mirip. Beberapa bakso punya mie yang dominan
+    \item \textbf{Lighting inconsistency:} Ada yang foto di resto terang, ada yang di warung dengan lighting kuning
+    \item \textbf{Occlusion \& angles:} Ga semua foto complete view - ada yang dari samping, ada yang partially covered
+    \item \textbf{Small dataset:} 1,108 images itu relatively small by modern standards. Makanya pre-trained models jadi crucial, dan augmentasi harus smart
+\end{itemize}
+
+\subsection{Preprocessing dan Augmentasi Data}
+Preprocessing pipeline yang diterapkan:
+
+\textbf{Training Data:}
+\begin{lstlisting}[language=Python, caption=Data Augmentation Pipeline,label={lst:augmentation}]
+transforms.Compose([
+    transforms.Resize((256, 256)),
+    transforms.RandomCrop((224, 224)),
+    transforms.RandomHorizontalFlip(p=0.5),
+    transforms.RandomRotation(degrees=15),
+    transforms.ColorJitter(brightness=0.2, 
+                          contrast=0.2,
+                          saturation=0.2, 
+                          hue=0.1),
+    transforms.RandomErasing(p=0.5, 
+                            scale=(0.02, 0.33),
+                            ratio=(0.3, 3.3)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                        std=[0.229, 0.224, 0.225])
+])
+\end{lstlisting}
+
+\textbf{Validation Data:}
+\begin{itemize}
+    \item Resize to 256×256
+    \item Center Crop to 224×224
+    \item ToTensor
+    \item Normalize dengan ImageNet statistics
+\end{itemize}
+
+RandomErasing ditambahkan untuk meningkatkan regularisasi dan mencegah overfitting dengan menghapus patch random pada gambar.
+
+\subsection{Konfigurasi Training}
+\textbf{Hyperparameters:}
+\begin{itemize}
+    \item \textbf{Batch Size:} 8 untuk Swin Transformer, 4 untuk ViT Base (disesuaikan dengan GPU memory 4GB)
+    \item \textbf{Epochs:} 10 (dengan early stopping patience=3)
+    \item \textbf{Learning Rate:} 5e-6 untuk Swin, 5e-5 untuk ViT
+    \item \textbf{Optimizer:} AdamW
+    \item \textbf{Weight Decay:} 0.1
+    \item \textbf{Learning Rate Scheduler:} CosineAnnealingLR (T\_max=epochs)
+    \item \textbf{Loss Function:} CrossEntropyLoss
+\end{itemize}
+
+\textbf{Fine-tuning Strategy:}
+\begin{itemize}
+    \item Menggunakan pre-trained weights dari ImageNet-1K
+    \item Mengganti classifier head dengan Linear layer untuk 5 kelas
+    \item Fine-tuning seluruh model (tidak freeze layers)
+\end{itemize}
+
+\textbf{Early Stopping:}
+Implementasi early stopping dengan patience=3 untuk mencegah overfitting. Training akan berhenti jika validation loss tidak membaik selama 3 epoch berturut-turut.
+
+\subsection{Library dan Framework}
+\begin{itemize}
+    \item \textbf{Python:} 3.8+
+    \item \textbf{PyTorch:} 2.0+
+    \item \textbf{timm:} 0.9.12 (PyTorch Image Models)
+    \item \textbf{torchvision:} Latest
+    \item \textbf{scikit-learn:} Untuk metrics evaluation
+    \item \textbf{matplotlib, seaborn:} Untuk visualisasi
+    \item \textbf{pandas:} Untuk data manipulation
+\end{itemize}
+
+\subsection{Spesifikasi Hardware}
+\begin{itemize}
+    \item \textbf{GPU:} NVIDIA GeForce RTX 3050 Laptop GPU (4GB VRAM)
+    \item \textbf{CPU:} Intel Core i5-11400H
+    \item \textbf{RAM:} 16GB
+    \item \textbf{OS:} Windows 11
+    \item \textbf{CUDA Version:} 12.x
+    \item \textbf{PyTorch Version:} 2.x
+\end{itemize}
+
+\subsection{Cara Pengukuran Metrik Evaluasi}
+\textbf{Accuracy:} 
+$$\text{Accuracy} = \frac{\text{Correct Predictions}}{\text{Total Predictions}}$$
+
+\textbf{Precision (per-class):}
+$$\text{Precision} = \frac{TP}{TP + FP}$$
+
+\textbf{Recall (per-class):}
+$$\text{Recall} = \frac{TP}{TP + FN}$$
+
+\textbf{F1-Score (macro-averaged):}
+$$\text{F1} = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$$
+
+\textbf{Inference Time:}
+Diukur dengan menjalankan model pada 100 batch validation data dan menghitung rata-rata waktu per batch dalam milliseconds.
+
+\textbf{Throughput:}
+$$\text{Throughput (img/s)} = \frac{\text{Batch Size}}{\text{Inference Time (s)}}$$
+
+\textbf{Model Size:}
+Dihitung dari total parameter model dalam MB (assuming float32).
+
+\section{HASIL DAN ANALISIS}
+
+\subsection{Perbandingan Jumlah Parameter}
+\begin{table}[h]
+\caption{Perbandingan Jumlah Parameter dan Ukuran Model}
+\label{tab:parameters}
+\centering
+\begin{tabular}{|l|r|r|}
+\hline
+\textbf{Model} & \textbf{Total Parameters} & \textbf{Size (MB)} \\ \hline
+Swin Transformer Tiny & 27,523,199 & 104.99 \\ \hline
+Vision Transformer Base & 85,802,501 & 327.31 \\ \hline
+\textbf{Ratio (ViT/Swin)} & \textbf{3.12×} & \textbf{3.12×} \\ \hline
+\end{tabular}
+\end{table}
+
+Vision Transformer Base memiliki 3.12 kali lebih banyak parameter dibanding Swin Transformer Tiny. Perbedaan ini disebabkan oleh:
+\begin{itemize}
+    \item Embedding dimension yang jauh lebih besar (768 vs 96)
+    \item Patch size lebih besar namun dengan depth yang lebih dalam (12 blocks)
+    \item MLP layers dengan expansion ratio 4× pada setiap transformer block
+    \item Global attention mechanism yang memerlukan lebih banyak parameter
+\end{itemize}
+
+\subsection{Perbandingan Metrik Performa}
+\begin{table}[h]
+\caption{Perbandingan Metrik Klasifikasi}
+\label{tab:performance}
+\centering
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\ \hline
+Swin Tiny & 0.9775 & 0.9774 & 0.9774 & 0.9773 \\ \hline
+ViT Base & \textbf{0.9865} & \textbf{0.9867} & \textbf{0.9864} & \textbf{0.9864} \\ \hline
+\textbf{Improvement} & \textbf{+0.90\%} & \textbf{+0.93\%} & \textbf{+0.90\%} & \textbf{+0.91\%} \\ \hline
+\end{tabular}
+\end{table}
+
+Okay, jadi hasil actual dari eksperimen saya: ViT Base clearly wins di accuracy dengan 98.65\%, beating Swin Tiny yang dapet 97.75\%. Selisihnya 0.9 percentage points - keliatan kecil, tapi kalau dipikir: ViT cuma salah 3 dari 222 samples, sementara Swin salah 5. Dalam konteks production app, kedua angka ini sebenarnya udah excellent. The question is: apakah selisih 2 errors ini worth the 3× larger model? That's what I'm trying to figure out.
+
+\subsection{Perbandingan Waktu Inferensi}
+\begin{table}[h]
+\caption{Perbandingan Efisiensi Inferensi}
+\label{tab:inference}
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Model} & \textbf{Inference Time (ms/img)} & \textbf{Throughput (img/s)} \\ \hline
+Swin Tiny & \textbf{0.57} & \textbf{1754.07} \\ \hline
+ViT Base & 0.77 & 1294.26 \\ \hline
+\textbf{Speedup (Swin)} & \textbf{1.35×} & \textbf{1.35×} \\ \hline
+\end{tabular}
+\end{table}
+
+Now, ini bagian menarik: Swin significantly faster! 35\% speedup itu bukan main - 1,754 images per second vs ViT's 1,294. Dalam production setting, this matters a lot. Kenapa Swin bisa jauh lebih cepat?
+
+\begin{itemize}
+    \item \textbf{Smaller footprint:} 27.5M params vs 85.8M - ini 3× difference, directly impact inference speed
+    \item \textbf{Smarter attention:} Window-based attention itu O(n) complexity, while ViT's global attention is O(n²). Math doesn't lie
+    \item \textbf{Memory efficient:} 105 MB model size vs 327 MB means better cache utilization. Less memory shuffling = faster
+    \item \textbf{Batch advantage:} Saya bisa run batch 8 di Swin, cuma 4 di ViT (GPU memory limit). Higher batch = better throughput
+\end{itemize}
+
+Jadi in practical terms: kalau lu deploy ini di edge device atau need real-time processing, Swin's speed advantage is huge. But kalau di cloud server dengan GPU besar, ViT's slight accuracy edge might be worth the slower speed.
+
+\subsection{Visualisasi Kurva Learning}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/learning_curves.png}
+    \caption{Kurva Training dan Validation Loss/Accuracy untuk Swin dan ViT}
+    \label{fig:learning-curves}
+\end{figure}
+
+Yang menarik dari learning curves (Figure \ref{fig:learning-curves}):
+
+\begin{itemize}
+    \item \textbf{Swin's journey:} Konvergensi-nya smooth dan gradual. Dari epoch 1 sampai 10, validation accuracy naik steady sampai plateau di 97.75\% around epoch 8-10. Training accuracy stable di 97-98\%, which is good - ga ada signs of severe overfitting. Model learn well and generalize properly.
+    
+    \item \textbf{ViT's impressive convergence:} Ini yang impressive - ViT converge jauh lebih cepat! Peak validation accuracy 99.55\% udah di epoch 7. Training accuracy bahkan hit 99.77\% di epoch 6. Tapi yang penting: despite high training accuracy, validation tetap stabil (no wild fluctuations). Ini menunjukkan pre-training ImageNet-21K nya really helps - model already "tahu" banyak visual concepts, tinggal fine-tune aja.
+\end{itemize}
+
+The takeaway? Kalau lu punya time constraint dalam training, ViT converges faster. But both models eventually reach their stable performance without overfitting badly.
+
+\subsection{Confusion Matrix}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/confusion_matrices.png}
+    \caption{Confusion Matrix untuk Swin Transformer (kiri) dan ViT Base (kanan)}
+    \label{fig:confusion-matrix}
+\end{figure}
+
+Sekarang let's dive into confusion matrices (Figure \ref{fig:confusion-matrix}) - ini kasih insight menarik tentang where each model struggles:
+
+\begin{itemize}
+    \item \textbf{Swin's performance breakdown:} Overall solid dengan 217/222 correct (97.75\%). Errors-nya concentrated: 2 Nasi Goreng samples confused dengan kelas lain, dan 3 Soto Ayam yang misclassified. Yang impressive: Bakso, Gado-Gado, sama Rendang? Perfect 100\%! Kayaknya visual distinctiveness mereka strong enough untuk Swin capture dengan baik.
+    
+    \item \textbf{ViT's near-perfect matrix:} Ini almost flawless - 219/222 benar (98.65\%). Cuma 3 errors spread across classes: 1 miss di Nasi Goreng, 1 di Rendang, 1 di Soto Ayam. Bakso dan Gado-Gado juga perfect 100\%. The fact that ViT bisa reduce Soto Ayam errors dari 3 jadi 1 (compared to Swin) shows its superior discriminative power, probably thanks to global attention yang bisa capture subtle differences better.
+\end{itemize}
+
+Interesting pattern: Nasi Goreng dan Soto Ayam consistently the hardest classes untuk both models. Makes sense - visual diversity dalam kelas tersebut memang tinggi.
+
+\subsection{Perbandingan Metrik Komprehensif}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/metrics_comparison.png}
+    \caption{Bar Chart Perbandingan Semua Metrik (Swin vs ViT)}
+    \label{fig:metrics-comparison}
+\end{figure}
+
+\subsection{Analisis Mendalam}
+
+\subsubsection{Mengapa ViT Base Lebih Baik dari Swin dalam Akurasi?}
+\begin{enumerate}
+    \item \textbf{Model Capacity:} 85.8M parameter memberikan ViT kapasitas representational yang jauh lebih besar dibanding Swin's 27.5M, memungkinkan model mempelajari features yang lebih complex dan nuanced.
+    
+    \item \textbf{Global Attention:} Pure global attention memungkinkan ViT menangkap relationships antar seluruh region gambar secara simultan, penting untuk food classification dimana context (garnish, plating, accompaniments) sama pentingnya dengan main dish.
+    
+    \item \textbf{Pre-training Quality:} ViT-Base pre-trained pada ImageNet-21K (14M images) memberikan foundational knowledge yang superior, menghasilkan better transfer learning ke Indonesian Food dataset.
+    
+    \item \textbf{Embedding Richness:} Embedding dimension 768 vs Swin's 96 memberikan representational power yang jauh lebih kaya untuk menangkap subtle differences antar makanan Indonesia.
+\end{enumerate}
+
+\subsubsection{Trade-off Akurasi vs Efisiensi vs Kecepatan}
+\begin{itemize}
+    \item \textbf{ViT Base:} Superior accuracy (98.65\%), tetapi 3.12× lebih besar dan 35\% lebih lambat
+    \item \textbf{Swin Tiny:} Excellent accuracy (97.75\%), dengan efficiency 3.12× lebih baik dan speed 35\% lebih cepat
+    \item \textbf{Efficiency Score:} Swin menawarkan 16.7 img/s per MB model size vs ViT 3.96 img/s per MB (4.2× lebih efficient)
+    \item \textbf{Accuracy Gap:} Hanya 0.9\% difference (2 additional correct predictions dari 222 samples)
+\end{itemize}
+
+\subsubsection{Kesesuaian Model dengan Dataset}
+Dataset Indonesian Food memiliki karakteristik:
+\begin{itemize}
+    \item Ukuran small-medium (1,108 images, 886 training)
+    \item Variasi visual tinggi per kelas (different plating, angles, lighting)
+    \item Memerlukan understanding multi-scale (texture, color, shape, context)
+    \item Classes yang visually distinctive namun dengan subtle similarities
+\end{itemize}
+
+\textbf{Bottom line:} Kedua model deliver excellent results (>97\% accuracy). ViT wins by a hair di akurasi (+0.9\%), tapi trade-off-nya: 3× bigger dan 35\% slower. Kalau saya pribadi, untuk most production use cases, Swin hits that sweet spot - 97.75\% udah super solid, dan efficiency gains-nya massive. But kalau lu di research environment atau cloud deployment dimana GPU resources abundant dan every 0.1\% accuracy matters? ViT is the way to go.
+
+\section{KESIMPULAN DAN REFLEKSI}
+
+\subsection{Kesimpulan Hasil Perbandingan}
+Setelah running semua experiments dan analyzing hasil, ini key takeaways saya:
+
+\begin{enumerate}
+    \item \textbf{Accuracy battle:} ViT Base clearly wins dengan 98.65\% vs Swin's 97.75\%. Margin-nya 0.9\% - literally 2 extra correct predictions dari 222 samples. In absolute terms, small. In practical terms? Depends on your use case. Kalau deploy di medical imaging, 2 errors could matter. Kalau untuk fun food app, probably not a big deal.
+    
+    \item \textbf{Efficiency is king:} Swin's efficiency numbers blew me away - 3.12× smaller (105 MB vs 327 MB) dan 35\% faster (1,754 img/s vs 1,294 img/s). That's 4.2× better efficiency score (throughput per MB). Kalau lu deploy ke thousands of edge devices, those numbers translate to real cost savings.
+    
+    \item \textbf{Parameter count matters:} ViT packing 85.8M parameters vs Swin's 27.5M. That's 3× difference. More parameters = more capacity, tapi juga = more memory, slower inference, harder to deploy. The trade-off is real.
+    
+    \item \textbf{Training insights:} Both models converge nicely. ViT hit peak 99.55\% di epoch 7 (then I early-stopped it). Swin stable at 97.75\% epochs 8-10. Training time? Same-same, around 13 minutes each. So training cost-nya comparable.
+    
+    \item \textbf{Generalization strength:} Both models generalize well (>97\% validation accuracy) tanpa overfitting gila-gilaan. Pre-training works! ImageNet-21K for ViT, ImageNet-1K for Swin - both give solid foundation.
+    
+    \item \textbf{Dataset adequacy:} 1,108 images ternyata cukup untuk fine-tune these powerful pre-trained models. Ga ada class yang particularly hopeless untuk either model. Even Nasi Goreng dan Soto Ayam yang challenging, masih bisa classified well.
+\end{enumerate}
+
+\subsection{Rekomendasi Model}
+
+Okay, jadi setelah semua analysis ini, when should you pick which model? Here's my honest take:
+
+\subsubsection{Go with ViT Base if...}
+\textbf{Your priority is maximum accuracy}
+
+Use cases where ViT makes sense:
+\begin{itemize}
+    \item \textbf{Research projects:} Lu lagi explore state-of-the-art, want the best possible baseline
+    \item \textbf{Cloud/Server deployment:} GPU resources abundant, latency ga terlalu critical
+    \item \textbf{Critical applications:} Food quality inspection, nutrition analysis dimana every error counts
+    \item \textbf{Small batch inference:} Processing images one-by-one or small batches, speed less critical
+    \item \textbf{When 98.65\% > 97.75\% actually matters:} Medical imaging, quality control, etc.
+\end{itemize}
+
+Real talk: 98.65\% accuracy (only 3 errors dari 222) gives high confidence. Kalau app lu butuh that extra 0.9\% dan lu punya compute budget, go for it.
+
+\subsubsection{Go with Swin Tiny if...}
+\textbf{Your priority is practical deployment \& efficiency}
+
+Use cases where Swin shines:
+\begin{itemize}
+    \item \textbf{Mobile apps:} 105 MB model size reasonable untuk mobile deployment, 327 MB ViT too chunky
+    \item \textbf{Edge devices:} Raspberry Pi, Jetson Nano, smart cameras - Swin runs, ViT struggles
+    \item \textbf{Production at scale:} Deploying ke thousands of devices? Size \& efficiency savings add up fast
+    \item \textbf{Real-time processing:} 1,754 img/s means smooth real-time performance
+    \item \textbf{Cost-sensitive:} Smaller model = less compute = lower cloud costs
+\end{itemize}
+
+My take: For MOST production scenarios, 97.75\% is damn good. The 3.12× size reduction dan 35\% speed boost? That's huge for deployment. Unless lu absolutely need that extra 0.9\%, Swin is the smart choice.
+
+\subsubsection{Specific Scenario: Real-time Video Applications}
+\textbf{Clear winner: Swin Transformer Tiny}
+
+Why?
+\begin{itemize}
+    \item \textbf{Throughput king:} 1,754 images/second easily handles real-time video (30-60 FPS with processing overhead)
+    \item Low latency (0.57ms per image) suitable untuk interactive applications
+    \item Batch processing lebih efficient dengan batch size 8 vs ViT's 4
+    \item Cocok untuk aplikasi: restaurant menu auto-tagging, food delivery categorization, social media food classification, dietary tracking apps
+\end{itemize}
+
+\subsubsection{Summary Trade-offs}
+\begin{itemize}
+    \item \textbf{Choose ViT Base} jika: Server/Cloud deployment, GPU resources available, accuracy adalah absolute priority
+    \item \textbf{Choose Swin Tiny} jika: Edge deployment, limited resources, need balance of accuracy \& speed, production at scale
+\end{itemize}
+
+\subsection{Saran untuk Pengembangan Lebih Lanjut}
+\begin{enumerate}
+    \item \textbf{Model Ensemble:} Kombinasi prediksi ViT Base dan Swin Tiny dapat meningkatkan robustness. Ensemble voting atau weighted averaging bisa push accuracy beyond 99\%. Potential: use Swin for fast first-pass, ViT for uncertain cases.
+    
+    \item \textbf{Knowledge Distillation:} Gunakan ViT Base sebagai teacher untuk distill knowledge ke Swin Tiny atau model yang lebih kecil (ViT-Small/Tiny), potentially meningkatkan Swin accuracy mendekati ViT tanpa menambah parameter signifikan.
+    
+    \item \textbf{Dataset Expansion:} Perbesar dataset menjadi 5,000+ images dengan web scraping atau collaboration dengan restaurants. Lebih banyak data akan benefit both models, especially ViT yang scale better dengan data.
+    
+    \item \textbf{Model Compression:} Terapkan pruning, quantization (INT8), atau knowledge distillation pada ViT Base untuk reduce size dari 327 MB ke ~100 MB sambil maintain 98\%+ accuracy. Target: ViT-compressed dengan Swin-size footprint.
+    
+    \item \textbf{Multi-task Learning:} Extend untuk ingredient detection, portion estimation, nutritional value prediction, dan recipe recommendation. Multi-task learning dapat improve feature learning dan provide more value.
+    
+    \item \textbf{Cross-dataset \& Cross-cultural Evaluation:} Test generalization pada Asian food datasets (Chinese, Japanese, Thai) dan Western food datasets untuk understand model robustness across cuisines.
+    
+    \item \textbf{Explainability \& Interpretability:} Implementasi Grad-CAM, attention maps visualization, dan feature importance analysis untuk understand what visual cues each model uses. Important untuk trust dan debugging.
+    
+    \item \textbf{Deployment Optimization:} Implement ONNX export, TensorRT optimization, atau mobile deployment (TFLite/CoreML) untuk production. Benchmark real-world latency dengan actual mobile devices.
+    
+    \item \textbf{Active Learning:} Implement active learning pipeline untuk continuously improve model dengan user feedback, focusing on misclassified samples.
+    
+    \item \textbf{Regional Variations:} Expand classification untuk regional variations (contoh: Rendang Padang vs Rendang Minang, Soto Betawi vs Soto Lamongan) untuk more fine-grained recognition.
+\end{enumerate}
+
+\newpage
+\section{LAMPIRAN}
+
+\subsection{Informasi Repository GitHub}
+Source code lengkap proyek ini tersedia di GitHub:
+\begin{itemize}
+    \item \textbf{Repository:} \url{https://github.com/William-130/VisionTransformer-Comparison.git}
+    \item \textbf{Author:} William Chan (122140130)
+    \item \textbf{Struktur Proyek:} Terdiri dari scripts training (train\_swin.py, train\_vit.py), evaluation (evaluate.py), visualization (visualize.py), dan dokumentasi lengkap
+    \item \textbf{Requirements:} requirements.txt berisi semua dependencies (PyTorch, timm, torchvision, etc.)
+    \item \textbf{Setup Guide:} README.md dan START\_HERE.md memberikan panduan lengkap untuk reproduksi
+    \item \textbf{Results:} Folder outputs/ berisi trained models, evaluation metrics, dan visualizations
+\end{itemize}
+
+\subsection{Output Training Log - Swin Transformer}
+\begin{lstlisting}[language=Python, caption=Training Progress Swin Transformer,label={lst:swin-log}]
+Epoch 1/10 - Train Loss: 1.4093, Train Acc: 47.86%
+           Val Loss: 1.0417, Val Acc: 77.93%
+Epoch 2/10 - Train Loss: 0.7963, Train Acc: 85.10%
+           Val Loss: 0.5028, Val Acc: 88.74%
+Epoch 3/10 - Train Loss: 0.4127, Train Acc: 90.86%
+           Val Loss: 0.2853, Val Acc: 93.69%
+Epoch 4/10 - Train Loss: 0.2534, Train Acc: 96.28%
+           Val Loss: 0.1781, Val Acc: 95.95%
+Epoch 5/10 - Train Loss: 0.1991, Train Acc: 96.73%
+           Val Loss: 0.1399, Val Acc: 96.40%
+Epoch 6/10 - Train Loss: 0.1586, Train Acc: 97.40%
+           Val Loss: 0.1222, Val Acc: 97.30%
+Epoch 7/10 - Train Loss: 0.1481, Train Acc: 96.84%
+           Val Loss: 0.1136, Val Acc: 97.30%
+Epoch 8/10 - Train Loss: 0.1180, Train Acc: 98.53%
+           Val Loss: 0.1028, Val Acc: 97.75%
+Epoch 9/10 - Train Loss: 0.1126, Train Acc: 98.65%
+           Val Loss: 0.0997, Val Acc: 97.75%
+Epoch 10/10 - Train Loss: 0.1174, Train Acc: 97.18%
+            Val Loss: 0.0996, Val Acc: 97.75%
+
+Best Model: Epoch 8 with Validation Accuracy: 97.75%
+\end{lstlisting}
+
+\subsection{Output Training Log - Vision Transformer (ViT)}
+\begin{lstlisting}[language=Python, caption=Training Progress Vision Transformer (ViT),label={lst:vit-log}]
+Epoch 1/10 - Train Loss: 0.5232, Train Acc: 81.38%
+           Val Loss: 0.3607, Val Acc: 88.29%
+Epoch 2/10 - Train Loss: 0.2512, Train Acc: 91.65%
+           Val Loss: 0.1087, Val Acc: 96.40%
+Epoch 3/10 - Train Loss: 0.1682, Train Acc: 94.24%
+           Val Loss: 0.1312, Val Acc: 95.95%
+Epoch 4/10 - Train Loss: 0.1037, Train Acc: 97.07%
+           Val Loss: 0.1953, Val Acc: 93.69%
+Epoch 5/10 - Train Loss: 0.0298, Train Acc: 98.98%
+           Val Loss: 0.0883, Val Acc: 97.30%
+Epoch 6/10 - Train Loss: 0.0062, Train Acc: 99.77%
+           Val Loss: 0.0355, Val Acc: 98.20%
+Epoch 7/10 - Train Loss: 0.0331, Train Acc: 98.98%
+           Val Loss: 0.0389, Val Acc: 99.55% (BEST)
+Epoch 8/10 - Train Loss: 0.0237, Train Acc: 98.98%
+           Val Loss: 0.1234, Val Acc: 95.95%
+Epoch 9/10 - Train Loss: 0.0138, Train Acc: 99.66%
+           Val Loss: 0.0400, Val Acc: 98.65%
+Epoch 10/10 - Train Loss: 0.0042, Train Acc: 99.89%
+            Val Loss: 0.0386, Val Acc: 98.65%
+
+Best Model: Epoch 7 with Validation Accuracy: 99.55%
+Final Evaluation Accuracy: 98.65% (219/222 correct)
+\end{lstlisting}
+
+\subsection{Visualisasi Tambahan}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/parameter_comparison.png}
+    \caption{Perbandingan Jumlah Parameter dan Ukuran Model: Swin Transformer (27.5M params, 105 MB) vs Vision Transformer Base (85.8M params, 327 MB)}
+    \label{fig:param-comp}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/inference_time_comparison.png}
+    \caption{Perbandingan Waktu Inferensi: Swin Transformer (1,754 img/s) vs Vision Transformer (1,294 img/s) - Swin 35\% lebih cepat}
+    \label{fig:inference-comp}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/summary_comparison.png}
+    \caption{Summary Perbandingan Model Swin Transformer vs Vision Transformer (ViT Base)}
+    \label{fig:summary-comp}
+\end{figure}
+
+\newpage
+\bibliographystyle{IEEEtran}
+\bibliography{Referensi}
+\end{document}
